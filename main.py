@@ -12,8 +12,10 @@ from os import path #acceses file an operating system
 from settings import *
 from sprites import *
 from utils import *
-vec = pg.math.Vector2
 # import settings
+vec = pg.math.Vector2
+
+
 
 
 # the game class that will be instantiated in order to run the game...
@@ -33,8 +35,11 @@ class Game:
     
     # a method is a function tied to a Class
 
+
     def load_data(self):
-        self.game_dir = path.dirname(__file__) #accesses the file space that we are currently in
+        self.game_dir = path.dirname(__file__)
+        self.img_dir = path.join(self.game_dir, 'images')
+        self.wall_img = pg.image.load(path.join(self.img_dir, 'wall_art.png')).convert_alpha()
         self.map = Map(path.join(self.game_dir, 'level1.txt'))
         print('data is loaded')
 
