@@ -1,6 +1,8 @@
 import pygame as pg
 from pygame.sprite import Sprite
 from settings import *
+from utils import *
+from os import path
 
 vec = pg.math.Vector2
 
@@ -8,10 +10,11 @@ vec = pg.math.Vector2
 def collide_hit_rect(one, two):
     return one.hit_rect.colliderect(two.rect)
 
+# this function checks for x and y collision in sequence and sets the position based on collision direction
 def collide_with_walls(sprite, group, dir):
     if dir == 'x':
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
-        if hits:
+        if hits: #checking for collision of player with a wall
             # print("collided with wall from x dir")
             if hits[0].rect.centerx > sprite.hit_rect.centerx:
                 sprite.pos.x = hits[0].rect.left - sprite.hit_rect.width / 2
@@ -32,20 +35,26 @@ def collide_with_walls(sprite, group, dir):
 
 class Player(Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites
-        Sprite.__init__(self, self.groups) # instanstiating the Player class under the pre defined class of Sprite
+        self.groups = game.all_sprites #starts all the important attributes of Player
+        Sprite.__init__(self, self.groups)
         self.game = game
+        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png")) #connects to the sprite sheet image in the file path
+        self.load_images()
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
         self.vel = vec(0,0)
-        self.pos = vec(x,y) * TILESIZE #setting the position that the player starts at
+        self.pos = vec(x,y) * TILESIZE
         self.hit_rect = PLAYER_HIT_RECT
+        self.jumping = False
+        self.walking = False
+        self.last_update = 0
+        self.current_frame = 0
     def get_keys(self):
         self.vel = vec(0,0)
-        keys = pg.key.get_pressed()  # making sure that the player can move based on WASD key inputs
+        keys = pg.key.get_pressed()
         if keys[pg.K_a]:
-            self.vel.x = -PLAYER_SPEED
+            self.vel.x = -PLAYER_SPEED #checking for key presses
         if keys[pg.K_d]:
             self.vel.x = PLAYER_SPEED
         if keys[pg.K_w]:
@@ -53,11 +62,33 @@ class Player(Sprite):
         if keys[pg.K_s]:
             self.vel.y = PLAYER_SPEED
         if self.vel.x != 0 and self.vel.y != 0:
-            self.vel *= 0.7071  #setting up the velocity for the player
+            self.vel *= 0.7071
+    def load_images(self): #loading the images for the player sprite
+        self.standing_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
+                                self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)]
+        self.standing_frames = [self.spritesheet.get_image(TILESIZE*2,0,TILESIZE, TILESIZE),
+                                self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)]
+        for frame in self.standing_frames:
+            frame.set_colorkey(BLACK)
 
-    def update(self):
+    def animate(self): #algorithm to switch back and forth between colors for the animated sprite
+        now = pg.time.get_ticks()
+        if not self.jumping and not self.walking:
+            if now - self.last_update > 350:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
+                bottom = self.rect.bottom
+                self.image = self.standing_frames[self.current_frame]
+                self.rect = self.image.get_rect()
+                self.rect.bottom = bottom
+
+
+
+    def update(self): #updating the player class
+        # print("player updating")
+        self.animate()
         self.get_keys()
-        self.rect.center = self.pos # updating the position of the player based on the keys that are pressed
+        self.rect.center = self.pos
         self.pos += self.vel * self.game.dt
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
@@ -66,24 +97,26 @@ class Player(Sprite):
         self.rect.center = self.hit_rect.center
 
 
-class Mob(Sprite):
-    def __init__(self, game, x, y):
+class Mob(Sprite):  
+    def __init__(self, game, x, y): #insantiating mob and defining important attributes
         self.groups = game.all_sprites
-        Sprite.__init__(self, self.groups) #instiating mob class under the predefined Sprite class
+        Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.vel = vec(1,0)
-        self.pos = vec(x,y) * TILESIZE #setting position of the mob
+        self.pos = vec(x,y) * TILESIZE
         self.speed = 10
     def update(self):
         hits = pg.sprite.spritecollide(self, self.game.all_walls, True)
-        if hits:
+        if hits: #checking for collisions
             print("collided")
-            self.speed = 100
-        
-        if self.rect.x > WIDTH or self.rect.x < 0: #making sure that the mob can bounce of the wall and reverse the velocity when it does
+            self.speed -=1
+            self.new_rect = pg.Rect(self.pos.x, self.pos.y, 100, 100) 
+            self.rect = self.new_rect
+            self.image.fill(RED)
+        if self.rect.x > WIDTH or self.rect.x < 0:
             self.speed *= -1
             self.pos.y += TILESIZE
         self.pos += self.speed * self.vel
@@ -92,29 +125,30 @@ class Mob(Sprite):
 
 class Wall(Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.all_walls #insatiating the wall class
+        self.groups = game.all_sprites, game.all_walls #wall class and checking for image of the wall
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = game.wall_img
-        #self.image = pg.Surface((TILESIZE, TILESIZE))
-        #self.image.fill(GREEN)
+        # self.image = pg.Surface((TILESIZE, TILESIZE))
+        # self.image.fill(GREEN)
         self.rect = self.image.get_rect()
-        self.vel = vec(0,0)
+        self.vel = vec(0,0) 
         self.pos = vec(x,y) * TILESIZE
-        self.rect.center = self.pos #setting wall position
+        self.rect.center = self.pos
     def update(self):
         pass
 
 
 class Coin(Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites
-        Sprite.__init__(self, self.groups) #instantiating the Coin Class
+        self.groups = game.all_sprites #instatiating coin class
+        Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
         self.vel = vec(0,0)
-        self.pos = vec(x,y) * TILESIZE#setting the position
+        self.pos = vec(x,y) * TILESIZE
+        self.rect.center = self.pos
     def update(self):
         pass
