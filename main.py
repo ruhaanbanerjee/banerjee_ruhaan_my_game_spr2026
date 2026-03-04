@@ -29,9 +29,9 @@ from os import path
 from settings import *
 from sprites import *
 from utils import *
-vec = pg.math.Vector2 #importing the important classes and settings for the game
+vec = pg.math.Vector2
 
-
+# import settings
 
 
 # the game class that will be instantiated in order to run the game...
@@ -42,7 +42,7 @@ class Game:
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.set_caption(TITLE)
 
-        self.clock = pg.time.Clock()
+        self.clock = pg.time.Clock() #setting the important boolean values for the game running
         self.running = True
         self.playing = True
         self.game_cooldown = Cooldown(5000)
@@ -53,20 +53,20 @@ class Game:
 
     def load_data(self):
         self.game_dir = path.dirname(__file__)
-        self.img_dir = path.join(self.game_dir, 'images')
-        self.wall_img = pg.image.load(path.join(self.img_dir, 'wall_art.png')).convert_alpha() #loading all the necessary data like that needed for the custom sprite
+        self.img_dir = path.join(self.game_dir, 'images') #importing the wall art and the important images on the file
+        self.wall_img = pg.image.load(path.join(self.img_dir, 'wall_art.png')).convert_alpha()
         self.map = Map(path.join(self.game_dir, 'level1.txt'))
         print('data is loaded')
 
     def new(self):
         self.load_data()
-        self.all_sprites = pg.sprite.Group() #initiating the game classes to the group sprite
+        self.all_sprites = pg.sprite.Group() # setting the important sprite to the Group to get the abilities of the group
         self.all_walls = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
         # self.player = Player(self, 15, 15)
         # self.mob = Mob(self, 4, 4) 
         # self.wall = Wall(self, WIDTH/2/TILESIZE, HEIGHT/2/TILESIZE)
-        for row, tiles in enumerate(self.map.data):
+        for row, tiles in enumerate(self.map.data): #setting each of the aspect of the map to a wall, player, or coin
             for col, tile, in enumerate(tiles):
                 if tile == '1':
                     # call class constructor without assigning variable...when
@@ -79,15 +79,15 @@ class Game:
                     Coin(self, col, row)
         self.run()
 
-    def run(self):
+    def run(self): #setting the code to the check for all of the True things while running
         while self.running:
-            self.dt = self.clock.tick(FPS) / 1000 #checking that the function is running and calling the other functions necessary to run the game
+            self.dt = self.clock.tick(FPS) / 1000
             self.events()
             self.update()
             self.draw()
 
-    def events(self):
-        for event in pg.event.get():  #checks for quits and key presses
+    def events(self): # checking for the events like keydown
+        for event in pg.event.get():
             if event.type == pg.QUIT:
                 if self.playing:
                     self.playing = False
@@ -107,33 +107,33 @@ class Game:
     def quit(self):
         pass
 
-    def update(self):
-        self.all_sprites.update() #updates sprites
+    def update(self): # updating the sprites so that it can check for movements and images on the sprites
+        self.all_sprites.update()
 
     
     def draw(self):
         self.screen.fill(BLUE)
-        self.draw_text("Hello World", 24, WHITE, WIDTH/2, TILESIZE)
-        self.draw_text(str(self.dt), 24, WHITE, WIDTH/2, HEIGHT/4) #puts text and sprites onto the screen
+        self.draw_text("Hello World", 24, WHITE, WIDTH/2, TILESIZE) #drawing the important entities for the game
+        self.draw_text(str(self.dt), 24, WHITE, WIDTH/2, HEIGHT/4)
         # self.draw_text(str(self.game_cooldown.time), 24, WHITE, WIDTH/2, HEIGHT/.5)
         self.draw_text(str(self.game_cooldown.ready()), 24, WHITE, WIDTH/2, HEIGHT/3)
         self.draw_text(str(self.player.pos), 24, WHITE, WIDTH/2, HEIGHT-TILESIZE*3)
         self.all_sprites.draw(self.screen)
         pg.display.flip()
 
-    def draw_text(self, text, size, color, x, y):
-        font_name = pg.font.match_font('arial') #puts text onto the screen
+    def draw_text(self, text, size, color, x, y): #writing the important text onto the screen
+        font_name = pg.font.match_font('arial')
         font = pg.font.Font(font_name, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x,y)
         self.screen.blit(text_surface, text_rect)
 
-if __name__ == "__main__":
-    g = Game() #calling and running class Game
+if __name__ == "__main__": #checking for the gae to be instantiated
+    g = Game()
 
 while g.running:
-    g.new()
+    g.new() # checking if the game is running and if it is it calls the game class
 
 
 pg.quit()

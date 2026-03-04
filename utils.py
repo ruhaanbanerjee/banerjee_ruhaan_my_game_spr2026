@@ -12,7 +12,7 @@ class Map:
             for line in f:
                 self.data.append(line.strip())
 
-        # 
+        # setting the tile width and the size based on the value defined in settings "TILESIZE"
         self.tilewidth = len(self.data[0])
         self.tileheight = len(self.data)
         self.width = self.tilewidth * TILESIZE
@@ -20,11 +20,11 @@ class Map:
 
 
 class Spritesheet:
-    def __init__(self, filename):
-        self.spritesheet = pg.image.load(filename).convert() #makes sure that we can get the image and scale and put it onto our sprite classes
+    def __init__(self, filename): #initializing the class spritesheet to convert the image onto th character
+        self.spritesheet = pg.image.load(filename).convert()
 
-    def get_image(self, x, y, width, height):
-        image = pg.Surface((width, height))
+    def get_image(self, x, y, width, height): #scaling the image to fit on the surface of the player which is the size of a pixel
+        image = pg.Surface((width, height)) # it scales the image on one frame or one image
         image.blit(self.spritesheet, (0,0), (x,y, width, height))
         new_image = pg.transform.scale(image, (width, height))
         image = new_image
