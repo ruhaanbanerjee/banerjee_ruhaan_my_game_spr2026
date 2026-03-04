@@ -111,6 +111,24 @@ class Player(Sprite):
         collide_with_walls(self, self.game.all_walls, 'y')
         self.rect.center = self.hit_rect.center
 
+class Projectile(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_projectiles
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.vel = vec(1,0)
+        self.pos = vec(x,y) * TILESIZE
+        self.speed = 10
+        print("im a real projectile...")
+    def update(self):
+        hits = pg.sprite.spritecollide(self, self.game.all_walls, True)
+        print(hits)
+        self.pos += self.speed * self.vel
+        self.rect.center = self.pos
+
 
 class Mob(Sprite):
     def __init__(self, game, x, y):
