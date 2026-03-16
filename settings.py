@@ -1,19 +1,46 @@
 import pygame as pg
-WIDTH = 800
-HEIGHT = 600
-TITLE = "My cool game..."
-FPS = 60
+
 TILESIZE = 32
 
-# player values
-PLAYER_SPEED = 280
-PLAYER_HIT_RECT = pg.Rect(0, 0, TILESIZE, TILESIZE)
-# color values
+# Match this level so the whole game level is visible
+WIDTH = 1280
+HEIGHT = 704
+TITLE = "Escape the Abyss"
+FPS = 60
 
-# tuple storing RGB values
-BLUE = (0,0,255)
-WHITE = (255,255,255)
-RED = (255,0,0)
-GREEN = (0,255,0)
-YELLOW = (255,255,0)
-BLACK = (0,0,0)
+# player values
+PLAYER_SPEED = 0.7
+PLAYER_HIT_RECT = pg.Rect(0, 0, TILESIZE - 8, TILESIZE - 6)
+
+# platformer physics
+GRAVITY = 0.8
+FRICTION = -0.12
+JUMP_VEL = -14
+DOUBLE_JUMP_VEL = -12
+MAX_FALL_SPEED = 18
+
+# Game Settings
+PLAYER_MAX_LIVES = 3
+ATTACK_TIME = 180
+ATTACK_COOLDOWN = 250
+SMASH_TIME = 4500
+DAMAGE_FLASH_TIME = 220
+
+# colors
+BLUE = (0, 0, 255)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
+BLACK = (0, 0, 0)
+
+# abyss colors
+BG_COLOR = (8, 8, 14)
+WALL_COLOR = (52, 54, 70)
+PLAYER_COLOR = (220, 225, 240)
+GOAL_COLOR = (245, 240, 170)
+ENEMY_COLOR = (160, 55, 55)
+POWERUP_COLOR = (120, 230, 255)
+BREAKABLE_COLOR = (120, 90, 150)
+TEXT_COLOR = (230, 230, 245)
+DAMAGE_OVERLAY = (180, 20, 20)

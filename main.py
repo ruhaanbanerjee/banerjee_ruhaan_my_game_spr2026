@@ -1,144 +1,116 @@
-# game engine using template from Chris Bradfield's "Making Games with Python & Pygame"
-# I can push from vs code...
-# I can push more code from vs code to github
-'''
-Main file responsible for game loop including input, update, and draw methods.
-
-Tools for game development.
-
-# creating pixel art:
-https://www.piskelapp.com/
-
-# free game assets:
-https://opengameart.org/
-
-# free sprite sheets:
-https://www.kenney.nl/assets
-
-# sound effects:
-https://www.bfxr.net/
-# music:
-https://incompetech.com/music/royalty-free/
-
-
-'''
-
 import pygame as pg
-import sys
 from os import path
 from settings import *
 from sprites import *
 from utils import *
-vec = pg.math.Vector2
-
-# import settings
 
 
-# the game class that will be instantiated in order to run the game...
 class Game:
-    def __init__(self):
+    def __init__(self): # initializing the game class
         pg.init()
-        # setting up pygame screen using tuple value for width height
-        self.screen = pg.display.set_mode((WIDTH, HEIGHT)) #intializing the the set_mode and creating the width and height of a screen
+        self.screen = pg.display.set_mode((WIDTH, HEIGHT)) #setting the screen to the width and height defined in settings
         pg.display.set_caption(TITLE)
-
         self.clock = pg.time.Clock()
-        self.running = True
+        self.running = True #checking for running, playing, and winning
         self.playing = True
-        self.game_cooldown = Cooldown(5000) #creating the cooldown and clock timer
-        print('game instantiated...')
-        
-    
-    # a method is a function tied to a Class
+        self.won = False
 
-    def load_data(self):
-        self.game_dir = path.dirname(__file__)
-        self.img_dir = path.join(self.game_dir, 'images')
-        self.wall_img = pg.image.load(path.join(self.img_dir, 'wall_art.png')).convert_alpha() # loading in the data and calling the image to the player class
-        self.map = Map(path.join(self.game_dir, 'level1.txt'))
-        print('data is loaded')
+    def load_data(self): 
+        self.game_dir = path.dirname(__file__) #loading in the text for the level from the file where the game is
+        self.map = Map(path.join(self.game_dir, "level1.txt"))
 
     def new(self):
         self.load_data()
-        self.all_sprites = pg.sprite.Group()
-        self.all_walls = pg.sprite.Group() # creating the new sprites and tying them to the Group Class
-        self.all_mobs = pg.sprite.Group()
-        self.all_projectiles = pg.sprite.Group()
-        # self.player = Player(self, 15, 15)
-        # self.mob = Mob(self, 4, 4) 
-        # self.wall = Wall(self, WIDTH/2/TILESIZE, HEIGHT/2/TILESIZE)
-        for row, tiles in enumerate(self.map.data):  #enumerating through the tiles and walls to create walls and entities on the map
-            for col, tile, in enumerate(tiles):
-                if tile == '1':
-                    # call class constructor without assigning variable...when
+
+        self.all_sprites = pg.sprite.Group() #initalizing all of the sprites so that it all connects to all sprites
+        self.all_walls = pg.sprite.Group()
+        self.all_goals = pg.sprite.Group()
+        self.all_enemies = pg.sprite.Group()
+        self.all_powerups = pg.sprite.Group()
+        self.all_breakables = pg.sprite.Group()
+
+        self.player = None #the player will be created later
+        self.won = False
+
+        for row, tiles in enumerate(self.map.data):
+            for col, tile in enumerate(tiles): #setting each symbol in the level 1 code to a certain sprite from the sprites module
+                if tile == "1":
                     Wall(self, col, row)
-                if tile == 'P':
+                elif tile == "P":
                     self.player = Player(self, col, row)
-                if tile == 'M':
-                    Mob(self, col, row)
-                if tile == 'C':
-                    Coin(self, col, row)
+                elif tile == "G":
+                    Goal(self, col, row)
+                elif tile == "E":
+                    Enemy(self, col, row)
+                elif tile == "U":
+                    PowerUp(self, col, row)
+                elif tile == "B":
+                    BreakableWall(self, col, row)
+
         self.run()
 
     def run(self):
-        while self.running:
-            self.dt = self.clock.tick(FPS) / 1000 #checking for whether the game is running or not
+        self.playing = True #just checking for the function to be playing and initialzing the other functions for playing
+        while self.playing:
+            self.clock.tick(FPS)
             self.events()
             self.update()
             self.draw()
 
     def events(self):
-        for event in pg.event.get():
-            if event.type == pg.QUIT: #checking for important events like key presses
-                if self.playing:
-                    self.playing = False
+        for event in pg.event.get(): #checking if the person has quit the game or not
+            if event.type == pg.QUIT:
+                self.playing = False
                 self.running = False
-            if event.type == pg.MOUSEBUTTONUP:
-                print("i can get mouse input")
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_k:
-                    print("i can determine when keys are pressed")
 
-            if event.type == pg.KEYUP:
-                if event.key == pg.K_k:
-                    print("i can determine when keys are released")
-    
-
-
-    def quit(self):
-        pass
+            if event.type == pg.KEYDOWN: #when the player presses space or W the player jumps
+                if event.key in (pg.K_SPACE, pg.K_w) and self.player:
+                    self.player.jump()
 
     def update(self):
-        self.all_sprites.update()
-        # print(len(self.all_projectiles))
+        self.all_sprites.update() #updates the sprites based on their new positions
 
-    
+        # if the player touches the goal then the game ends and the level is complete
+        if self.player and pg.sprite.spritecollide(self.player, self.all_goals, False, collide_hit_rect):
+            self.won = True
+            self.playing = False
+
     def draw(self):
-        self.screen.fill(BLUE)
-        self.draw_text("Hello World", 24, WHITE, WIDTH/2, TILESIZE) #drawing the important text and sprites for the game
-        self.draw_text(str(self.dt), 24, WHITE, WIDTH/2, HEIGHT/4)
-        # self.draw_text(str(self.game_cooldown.time), 24, WHITE, WIDTH/2, HEIGHT/.5)
-        self.draw_text(str(self.game_cooldown.ready()), 24, WHITE, WIDTH/2, HEIGHT/3)
-        self.draw_text(str(self.player.pos), 24, WHITE, WIDTH/2, HEIGHT-TILESIZE*3)
-        self.all_sprites.draw(self.screen)
-        pg.display.flip()
+        self.screen.fill(BG_COLOR) #setting the game fill to the background color established in settings
+        self.all_sprites.draw(self.screen) #drawing the screen in
+
+        self.draw_text("Escape the Abyss", 30, TEXT_COLOR, WIDTH // 2, 12) #writing text on the screen for the name of the game
+        self.draw_text("A/D move   SPACE jump/double jump", 22, TEXT_COLOR, WIDTH // 2, 48) #writing the instructions for the game on the screen
+
+        pg.display.flip() #updates the entire window
+
+    # display a victory screen and keep it open until the player closes the window
+    def show_win_screen(self):
+        waiting = True
+        while waiting and self.running: # keep the win screen active while the game is running
+            self.screen.fill(BG_COLOR)  #fill the screen with the background color
+            self.draw_text("YOU ESCAPED THE ABYSS", 44, GOAL_COLOR, WIDTH // 2, HEIGHT // 2 - 40)
+            self.draw_text("Close window to quit", 24, TEXT_COLOR, WIDTH // 2, HEIGHT // 2 + 20)
+            pg.display.flip() # update the screen to show the text
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT: #checking for if the player has quit the window yet
+                    waiting = False #stop waiting for the player to quit the screen
+                    self.running = False #stop running the game
 
     def draw_text(self, text, size, color, x, y):
-        font_name = pg.font.match_font('arial')
-        font = pg.font.Font(font_name, size) #drawing the text onto the screen
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect()
-        text_rect.midtop = (x,y)
-        self.screen.blit(text_surface, text_rect)
+        font = pg.font.SysFont("arial", size)
+        surf = font.render(text, True, color) #setting the font, positions and rendering it to an image surface
+        rect = surf.get_rect(midtop=(x, y))
+        self.screen.blit(surf, rect) #drawing the text onto the screen
 
-if __name__ == "__main__":
+
+if __name__ == "__main__": #run the game
     g = Game()
-
-while g.running:
-    g.new()
-
-
-pg.quit()
-
-
-    
+    while g.running:
+        g.new()
+        if g.won: #checking if the player has won the game
+            g.show_win_screen()
+        else:
+            break
+    pg.quit()
