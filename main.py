@@ -111,6 +111,6 @@ if __name__ == "__main__": #run the game
         g.new()
         if g.won: #checking if the player has won the game
             g.show_win_screen()
-        else:
+        else: #checks if it needs to break the loop and end the game
             break
     pg.quit()
