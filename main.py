@@ -4,7 +4,6 @@ from settings import *
 from sprites import *
 from utils import *
 
-
 class Game:
     def __init__(self): # initializing the game class
         pg.init()
@@ -76,33 +75,45 @@ class Game:
             self.playing = False
 
     def draw(self):
-        self.screen.fill(BG_COLOR) #setting the game fill to the background color established in settings
-        self.all_sprites.draw(self.screen) #drawing the screen in
+        self.screen.fill(BG_COLOR) #setting the code for the text and writing the game text to tell the player what to do
+        self.all_sprites.draw(self.screen)
+        self.draw_text("ESCAPE THE ABYSS", 40, GOAL_COLOR, 20, 10, center=False)
+        self.draw_text("A/D or Arrow Keys = Move", 22, TEXT_COLOR, WIDTH // 2, HEIGHT - 70)
+        self.draw_text("SPACE or W = Jump / Double Jump", 22, TEXT_COLOR, WIDTH // 2, HEIGHT - 40)
+        pg.display.flip()
 
-        self.draw_text("Escape the Abyss", 30, TEXT_COLOR, WIDTH // 2, 12) #writing text on the screen for the name of the game
-        self.draw_text("A/D move   SPACE jump/double jump", 22, TEXT_COLOR, WIDTH // 2, 48) #writing the instructions for the game on the screen
-
-        pg.display.flip() #updates the entire window
-
-    # display a victory screen and keep it open until the player closes the window
+   # display a victory screen and keep it open until the player closes the window
     def show_win_screen(self):
         waiting = True
-        while waiting and self.running: # keep the win screen active while the game is running
-            self.screen.fill(BG_COLOR)  #fill the screen with the background color
-            self.draw_text("YOU ESCAPED THE ABYSS", 44, GOAL_COLOR, WIDTH // 2, HEIGHT // 2 - 40)
-            self.draw_text("Close window to quit", 24, TEXT_COLOR, WIDTH // 2, HEIGHT // 2 + 20)
-            pg.display.flip() # update the screen to show the text
+        while waiting and self.running:  # keep the win screen active while the game is running
+            self.screen.fill(BG_COLOR)   # fill the screen with the background color
 
-            for event in pg.event.get():
-                if event.type == pg.QUIT: #checking for if the player has quit the window yet
-                    waiting = False #stop waiting for the player to quit the screen
-                    self.running = False #stop running the game
+            # draw the main victory message in the center of the screen
+            self.draw_text("YOU ESCAPED THE ABYSS", 48, GOAL_COLOR, WIDTH // 2, HEIGHT // 2 - 40)
 
-    def draw_text(self, text, size, color, x, y):
-        font = pg.font.SysFont("arial", size)
-        surf = font.render(text, True, color) #setting the font, positions and rendering it to an image surface
-        rect = surf.get_rect(midtop=(x, y))
-        self.screen.blit(surf, rect) #drawing the text onto the screen
+            # draw the instruction text below the main message
+            self.draw_text("Press close to exit", 24, TEXT_COLOR, WIDTH // 2, HEIGHT // 2 + 20)
+
+            pg.display.flip()  # update the screen to show the text
+
+            for event in pg.event.get():  # check for player input/events
+                if event.type == pg.QUIT:  # checking if the player has closed the window
+                    waiting = False        # stop waiting for the player to quit the screen
+                    self.running = False   # stop running the game
+
+
+    def draw_text(self, text, size, color, x, y, center=True):
+        font = pg.font.Font(None, size) #setting font for text and putting the stuff on the screen
+        surf = font.render(text, True, color)
+        shadow = font.render(text, True, (0, 0, 0))
+        if center:
+            rect = surf.get_rect(center=(x, y))
+            shadow_rect = shadow.get_rect(center=(x + 2, y + 2))
+        else:
+            rect = surf.get_rect(topleft=(x, y))
+            shadow_rect = shadow.get_rect(topleft=(x + 2, y + 2))
+        self.screen.blit(shadow, shadow_rect)
+        self.screen.blit(surf, rect)
 
 
 if __name__ == "__main__": #run the game
