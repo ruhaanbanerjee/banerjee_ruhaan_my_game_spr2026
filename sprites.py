@@ -47,11 +47,9 @@ class Player(Sprite):
         self.pos = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE)  # starting position
         self.vel = vec(0, 0)                 
         self.acc = vec(0, 0)                 
-
         self.on_ground = False               
         self.jump_count = 0                  # no jumps used yet
         self.lives = PLAYER_MAX_LIVES        # set player lives
-
         self.rect.center = self.pos          # place the image at the start position
         self.hit_rect.center = self.pos      
 
