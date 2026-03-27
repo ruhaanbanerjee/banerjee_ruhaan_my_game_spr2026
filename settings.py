@@ -35,8 +35,8 @@ YELLOW = (255, 255, 0)
 BLACK = (0, 0, 0)
 
 # abyss colors
-BG_COLOR = (8, 9, 14)
-WALL_COLOR = (52, 54, 60)
+BG_COLOR = (5, 5, 7)
+WALL_COLOR = (10, 10,70)
 PLAYER_COLOR = (220, 225, 240)
 GOAL_COLOR = (245, 240, 170)
 ENEMY_COLOR = (160, 55, 55)
