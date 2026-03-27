@@ -73,6 +73,13 @@ class Game:
         if self.player and pg.sprite.spritecollide(self.player, self.all_goals, False, collide_hit_rect):
             self.won = True
             self.playing = False
+        if self.player and pg.sprite.spritecollide(self.player, self.all_enemies, False, collide_hit_rect): #if the player collides with the sprite enemy it will respawn at the start
+            self.player.lives -= 1
+            self.player.respawn() #calling respawn function from sprites
+
+        if self.player.lives <= 0: #checking if the game is over by checking the amount of lives remaining
+            self.playing = False
+            self.running = False
 
     def draw(self):
         self.screen.fill(BG_COLOR) #setting the code for the text and writing the game text to tell the player what to do
@@ -80,6 +87,7 @@ class Game:
         self.draw_text("ESCAPE THE ABYSS", 40, GOAL_COLOR, 20, 10, center=False)
         self.draw_text("A/D or Arrow Keys = Move", 22, TEXT_COLOR, WIDTH // 2, HEIGHT - 70)
         self.draw_text("SPACE or W = Jump / Double Jump", 22, TEXT_COLOR, WIDTH // 2, HEIGHT - 40)
+        self.draw_text(f"Lives: {self.player.lives}", 24, TEXT_COLOR, WIDTH - 140, 10, center=False) #wrtiing the lives on screen for the player to see
         pg.display.flip()
 
    # display a victory screen and keep it open until the player closes the window

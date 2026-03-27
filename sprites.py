@@ -45,6 +45,7 @@ class Player(Sprite):
 
         self.hit_rect = PLAYER_HIT_RECT.copy()   # make a hit box for collisions
         self.pos = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE)  # starting position
+        self.spawn = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE) #checking if the player needs to respawn
         self.vel = vec(0, 0)                 
         self.acc = vec(0, 0)                 
         self.on_ground = False               
@@ -74,7 +75,12 @@ class Player(Sprite):
         elif self.jump_count == 1:           # if one jump was already used
             self.vel.y = DOUBLE_JUMP_VEL     
             self.jump_count = 2              # record second jump used
-
+    def respawn(self): #respawning if hit with the enemy
+        self.pos = self.spawn.copy()
+        self.vel = vec(0, 0) #setting position back to the original start point
+        self.acc = vec(0, 0)
+        self.hit_rect.center = self.pos
+        self.rect.center = self.pos
     # Update the player every frame
     def update(self):
         self.get_keys()                      # read movement input
@@ -104,6 +110,37 @@ class Player(Sprite):
         else:
             self.on_ground = False           # player is in the air
 
+
+class Enemy(Sprite):
+    def __init__(self, game, x, y): #created enemy class
+        self.groups = game.all_sprites #setting to to two different groups, all sprites and all enemies
+        Sprite.__init__(self, self.groups)
+        self.game = game
+
+        self.image = pg.Surface((TILESIZE - 6, TILESIZE - 6)) #setting the size of the mob
+        self.image.fill(ENEMY_COLOR)
+        self.rect = self.image.get_rect()
+
+        self.hit_rect = PLAYER_HIT_RECT.copy() #setting a copy of the player hit function for the enemy
+        self.pos = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE) #setting the position of the enemy and the spawn point
+        self.spawn = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE)
+        self.vel = vec(1, 0) #changing velocity
+        self.acc = vec(0, 0)
+
+        self.rect.center = self.pos #changing location
+        self.hit_rect.center = self.pos
+
+    def update(self):
+        self.pos.x += self.vel.x
+        self.hit_rect.centerx = self.pos.x
+
+        hits = pg.sprite.spritecollide(self, self.game.all_walls, False) #checking if the player hit the enemy
+        if hits:
+            self.vel.x *= -1 #changing the velocity and position if the enemy has been hit
+            self.pos.x += self.vel.x * 2
+            self.hit_rect.centerx = self.pos.x
+
+        self.rect.center = self.hit_rect.center
 
 # Wall class for platforms and solid blocks
 class Wall(Sprite):
