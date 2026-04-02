@@ -45,7 +45,7 @@ class Player(Sprite):
 
         self.hit_rect = PLAYER_HIT_RECT.copy()   # make a hit box for collisions
         self.pos = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE)  # starting position
-        self.spawn = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE) #checking if the player needs to respawn
+        self.spawn = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE) #setting the position of the player starting as spawn
         self.vel = vec(0, 0)                 
         self.acc = vec(0, 0)                 
         self.on_ground = False               
