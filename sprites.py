@@ -43,7 +43,7 @@ class Player(Sprite):
         self.image.fill(PLAYER_COLOR)        
         self.rect = self.image.get_rect()    
 
-        self.hit_rect = PLAYER_HIT_RECT.copy()   # make a hit box for collisions
+        self.hit_rect = PLAYER_HIT_RECT   # make a hit box for collisions
         self.pos = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE)  # starting position
         self.spawn = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE) #setting the position of the player starting as spawn
         self.vel = vec(0, 0)                 
@@ -76,8 +76,8 @@ class Player(Sprite):
             self.vel.y = DOUBLE_JUMP_VEL     
             self.jump_count = 2              # record second jump used
     def respawn(self): #respawning if hit with the enemy
-        self.pos = self.spawn.copy()
-        self.vel = vec(0, 0) #setting position back to the original start point
+        self.pos = self.spawn #setting position back to the original start point
+        self.vel = vec(0, 0) 
         self.acc = vec(0, 0)
         self.hit_rect.center = self.pos
         self.rect.center = self.pos
@@ -120,8 +120,7 @@ class Enemy(Sprite):
         self.image = pg.Surface((TILESIZE - 6, TILESIZE - 6)) #setting the size of the mob
         self.image.fill(ENEMY_COLOR)
         self.rect = self.image.get_rect()
-
-        self.hit_rect = PLAYER_HIT_RECT.copy() #setting a copy of the player hit function for the enemy
+        self.hit_rect = PLAYER_HIT_RECT #setting a copy of the player hit function for the enemy
         self.pos = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE) #setting the position of the enemy and the spawn point
         self.spawn = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE)
         self.vel = vec(1, 0) #changing velocity
