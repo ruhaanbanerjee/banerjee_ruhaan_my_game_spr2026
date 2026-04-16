@@ -110,36 +110,34 @@ class Player(Sprite):
         else:
             self.on_ground = False           # player is in the air
 
-
 class Enemy(Sprite):
     def __init__(self, game, x, y): #created enemy class
-        self.groups = game.all_sprites #setting to to two different groups, all sprites and all enemies
+        self.groups = game.all_sprites, game.all_enemies #setting to to two different groups, all sprites and all enemies
         Sprite.__init__(self, self.groups)
         self.game = game
 
         self.image = pg.Surface((TILESIZE - 6, TILESIZE - 6)) #setting the size of the mob
         self.image.fill(ENEMY_COLOR)
         self.rect = self.image.get_rect()
-        self.hit_rect = PLAYER_HIT_RECT #setting a copy of the player hit function for the enemy
-        self.pos = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE) #setting the position of the enemy and the spawn point
-        self.spawn = vec((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE)
-        self.vel = vec(1, 0) #changing velocity
-        self.acc = vec(0, 0)
 
-        self.rect.center = self.pos #changing location
-        self.hit_rect.center = self.pos
+        self.start_x = (x + 0.5) * TILESIZE #setting the starting position of the enemy
+        self.y = (y + 0.5) * TILESIZE
+        self.x = self.start_x #current x position of the enemy
+        self.direction = 1 
+        self.speed = 2 #how fast the enemy moves
+        self.range = 80 #how far the enemy moves from its starting point
+
+        self.rect.center = (self.x, self.y) #changing location
 
     def update(self):
-        self.pos.x += self.vel.x
-        self.hit_rect.centerx = self.pos.x
+        self.x += self.speed * self.direction #moving the enemy left or right
 
-        hits = pg.sprite.spritecollide(self, self.game.all_walls, False) #checking if the player hit the enemy
-        if hits:
-            self.vel.x *= -1 #changing the velocity and position if the enemy has been hit
-            self.pos.x += self.vel.x * 2
-            self.hit_rect.centerx = self.pos.x
+        if self.x > self.start_x + self.range: #if enemy goes too far right
+            self.direction = -1 
+        if self.x < self.start_x - self.range: #if enemy goes too far left
+            self.direction = 1 
 
-        self.rect.center = self.hit_rect.center
+        self.rect.center = (int(self.x), int(self.y)) #updating position on screen
 
 # Wall class for platforms and solid blocks
 class Wall(Sprite):
@@ -161,17 +159,6 @@ class Goal(Sprite):
         self.image = pg.Surface((TILESIZE, TILESIZE))    # create goal image
         self.image.fill(GOAL_COLOR)                      
         self.rect = self.image.get_rect(topleft=(x * TILESIZE, y * TILESIZE)) 
-
-
-# Enemy class
-class Enemy(Sprite):
-    def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.all_enemies # add enemy to sprite and enemy groups
-        Sprite.__init__(self, self.groups)               # initialize the sprite
-        self.game = game                                 
-        self.image = pg.Surface((TILESIZE - 6, TILESIZE - 6))  # create enemy image
-        self.image.fill(ENEMY_COLOR)                     
-        self.rect = self.image.get_rect(center=((x + 0.5) * TILESIZE, (y + 0.5) * TILESIZE))  
 
 
 # Power-up class

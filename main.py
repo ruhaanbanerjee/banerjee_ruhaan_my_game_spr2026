@@ -1,8 +1,11 @@
 import pygame as pg
 from os import path
 from settings import *
+
 from sprites import *
 from utils import *
+
+
 
 class Game:
     def __init__(self): # initializing the game class
@@ -95,7 +98,6 @@ class Game:
         waiting = True
         while waiting and self.running:  # keep the win screen active while the game is running
             self.screen.fill(BG_COLOR)   # fill the screen with the background color
-
             # draw the main victory message in the center of the screen
             self.draw_text("YOU ESCAPED THE ABYSS", 48, GOAL_COLOR, WIDTH // 2, HEIGHT // 2 - 40)
 
