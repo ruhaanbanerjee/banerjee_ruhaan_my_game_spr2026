@@ -16,10 +16,14 @@ class Game:
         self.running = True #checking for running, playing, and winning
         self.playing = True
         self.won = False
+        self.levels = ["level1.txt", "level2.txt"] # list of level files
+        self.current_level = 0  # start on level 1
+        self.finished_game = False  # tracks if all levels are done
 
     def load_data(self): 
         self.game_dir = path.dirname(__file__) #loading in the text for the level from the file where the game is
-        self.map = Map(path.join(self.game_dir, "level1.txt"))
+        # load the current level file
+        self.map = Map(path.join(self.game_dir, self.levels[self.current_level]))
 
     def new(self):
         self.load_data()
@@ -74,15 +78,27 @@ class Game:
 
         # if the player touches the goal then the game ends and the level is complete
         if self.player and pg.sprite.spritecollide(self.player, self.all_goals, False, collide_hit_rect):
-            self.won = True
-            self.playing = False
-        if self.player and pg.sprite.spritecollide(self.player, self.all_enemies, False, collide_hit_rect): #if the player collides with the sprite enemy it will respawn at the start
-            self.player.lives -= 1
-            self.player.respawn() #calling respawn function from sprites
+            # if there is another level, start it
+            self.current_level += 1
+            if self.current_level < len(self.levels):
+                self.playing = False
+            else:
+                self.won = True
+                self.finished_game = True
+                self.playing = False
 
-        if self.player.lives <= 0: #checking if the game is over by checking the amount of lives remaining
-            self.playing = False
-            self.running = False
+
+        # if the player collides with the sprite enemy it will respawn at the start
+        if self.player and pg.sprite.spritecollide(self.player, self.all_enemies, False, collide_hit_rect):
+            if self.player.lives > 0:
+                self.player.lives -= 1
+                self.player.respawn() #calling respawn function from sprites
+
+            # checking if the game is over by checking the amount of lives remaining
+            if self.player.lives <= 0:
+                self.player.lives = 0
+                self.playing = False
+                self.running = False
 
     def draw(self):
         self.screen.fill(BG_COLOR) #setting the code for the text and writing the game text to tell the player what to do
@@ -130,8 +146,10 @@ if __name__ == "__main__": #run the game
     g = Game()
     while g.running:
         g.new()
-        if g.won: #checking if the player has won the game
+        #checks if all the levels are finished before showing that you won the game
+        if g.finished_game:
             g.show_win_screen()
-        else: #checks if it needs to break the loop and end the game
+        elif not g.running:
             break
+
     pg.quit()

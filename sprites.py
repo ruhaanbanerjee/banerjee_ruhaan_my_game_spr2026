@@ -51,6 +51,7 @@ class Player(Sprite):
         self.on_ground = False               
         self.jump_count = 0                  # no jumps used yet
         self.lives = PLAYER_MAX_LIVES        # set player lives
+        self.last_hit = 0
         self.rect.center = self.pos          # place the image at the start position
         self.hit_rect.center = self.pos      
 
@@ -81,6 +82,7 @@ class Player(Sprite):
         self.acc = vec(0, 0)
         self.hit_rect.center = self.pos
         self.rect.center = self.pos
+        self.last_hit = pg.time.get_ticks()
     # Update the player every frame
     def update(self):
         self.get_keys()                      # read movement input
