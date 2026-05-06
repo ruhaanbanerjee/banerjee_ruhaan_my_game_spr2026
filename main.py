@@ -16,7 +16,7 @@ class Game:
         self.running = True #checking for running, playing, and winning
         self.playing = True
         self.won = False
-        self.levels = ["level1.txt", "level2.txt"] # list of level files
+        self.levels = ["level1.txt", "level2.txt", "level3.txt", "level4.txt", "level5.txt"] # list of level files
         self.current_level = 0  # start on level 1
         self.finished_game = False  # tracks if all levels are done
 
@@ -99,6 +99,8 @@ class Game:
                 self.player.lives = 0
                 self.playing = False
                 self.running = False
+                if self.running == False:
+                    g.show_lose_screen()
 
     def draw(self):
         self.screen.fill(BG_COLOR) #setting the code for the text and writing the game text to tell the player what to do
@@ -113,9 +115,26 @@ class Game:
     def show_win_screen(self):
         waiting = True
         while waiting and self.running:  # keep the win screen active while the game is running
-            self.screen.fill(BG_COLOR)   # fill the screen with the background color
+            self.screen.fill(WIN_COLOR)   # fill the screen with the background color
             # draw the main victory message in the center of the screen
             self.draw_text("YOU ESCAPED THE ABYSS", 48, GOAL_COLOR, WIDTH // 2, HEIGHT // 2 - 40)
+
+            # draw the instruction text below the main message
+            self.draw_text("Press close to exit", 24, TEXT_COLOR, WIDTH // 2, HEIGHT // 2 + 20)
+
+            pg.display.flip()  # update the screen to show the text
+
+            for event in pg.event.get():  # check for player input/events
+                if event.type == pg.QUIT:  # checking if the player has closed the window
+                    waiting = False        # stop waiting for the player to quit the screen
+                    self.running = False   # stop running the game
+
+    def show_lose_screen(self):
+        waiting = True
+        while waiting:  # keep the loss screen active while the game is running
+            self.screen.fill(BG_COLOR)   # fill the screen with the background color
+            # draw the main victory message in the center of the screen
+            self.draw_text("YOU LOSE", 48, ENEMY_COLOR, WIDTH // 2, HEIGHT // 2 - 40)
 
             # draw the instruction text below the main message
             self.draw_text("Press close to exit", 24, TEXT_COLOR, WIDTH // 2, HEIGHT // 2 + 20)
