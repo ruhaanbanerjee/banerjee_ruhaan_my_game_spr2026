@@ -27,7 +27,6 @@ class Game:
 
     def new(self):
         self.load_data()
-
         self.all_sprites = pg.sprite.Group() #initalizing all of the sprites so that it all connects to all sprites
         self.all_walls = pg.sprite.Group()
         self.all_goals = pg.sprite.Group()
@@ -48,15 +47,14 @@ class Game:
                     Goal(self, col, row)
                 elif tile == "E":
                     Enemy(self, col, row)
-                elif tile == "U":
-                    PowerUp(self, col, row)
+
                 elif tile == "B":
                     BreakableWall(self, col, row)
 
         self.run()
 
     def run(self):
-        self.playing = True #just checking for the function to be playing and initialzing the other functions for playing
+        self.playing = True #just checking for the function to be playing and initialzing  the other functions for playing
         while self.playing:
             self.clock.tick(FPS)
             self.events()
@@ -72,6 +70,18 @@ class Game:
             if event.type == pg.KEYDOWN: #when the player presses space or W the player jumps
                 if event.key in (pg.K_SPACE, pg.K_w) and self.player:
                     self.player.jump()
+            
+                if event.key == pg.K_j and self.player: #punch when J is clicked
+                    self.player.punch()
+    def reset_game(self):
+        # reset back to level 1
+        self.current_level = 0
+
+        # reset game status
+        self.finished_game = False
+        self.won = False
+        self.playing = False
+        self.running = True
 
     def update(self):
         self.all_sprites.update() #updates the sprites based on their new positions
@@ -98,16 +108,18 @@ class Game:
             if self.player.lives <= 0:
                 self.player.lives = 0
                 self.playing = False
-                self.running = False
-                if self.running == False:
-                    g.show_lose_screen()
+                g.show_lose_screen()
 
     def draw(self):
         self.screen.fill(BG_COLOR) #setting the code for the text and writing the game text to tell the player what to do
         self.all_sprites.draw(self.screen)
+        if self.player and self.player.attacking: # draw punch hitbox while player is attacking
+            pg.draw.rect(self.screen, YELLOW, self.player.attack_rect, 2)
         self.draw_text("ESCAPE THE ABYSS", 40, GOAL_COLOR, 20, 10, center=False)
-        self.draw_text("A/D or Arrow Keys = Move", 22, TEXT_COLOR, WIDTH // 2, HEIGHT - 70)
-        self.draw_text("SPACE or W = Jump / Double Jump", 22, TEXT_COLOR, WIDTH // 2, HEIGHT - 40)
+        # show the current level number
+        self.draw_text(f"Level: {self.current_level + 1}", 24, GREEN, WIDTH - 140, 40, center=False)
+        self.draw_text("A/D or Arrow Keys = Move", 22, TEXT_COLOR, WIDTH // 2, HEIGHT - 40)
+        self.draw_text("SPACE or W = Jump / Double Jump and J = Punch Through Breakable (Orange Walls Are Breakable)", 22, TEXT_COLOR, WIDTH // 2, HEIGHT - 10)
         self.draw_text(f"Lives: {self.player.lives}", 24, TEXT_COLOR, WIDTH - 140, 10, center=False) #wrtiing the lives on screen for the player to see
         pg.display.flip()
 
@@ -116,11 +128,14 @@ class Game:
         waiting = True
         while waiting and self.running:  # keep the win screen active while the game is running
             self.screen.fill(WIN_COLOR)   # fill the screen with the background color
-            # draw the main victory message in the center of the screen
-            self.draw_text("YOU ESCAPED THE ABYSS", 48, GOAL_COLOR, WIDTH // 2, HEIGHT // 2 - 40)
+            # show win message
+            self.draw_text("YOU ESCAPED THE ABYSS", 48, GOAL_COLOR, WIDTH // 2, HEIGHT // 2 - 60)
 
-            # draw the instruction text below the main message
-            self.draw_text("Press close to exit", 24, TEXT_COLOR, WIDTH // 2, HEIGHT // 2 + 20)
+            # tell player how to replay
+            self.draw_text("Press R to Replay", 28, TEXT_COLOR, WIDTH // 2, HEIGHT // 2)
+
+            # tell player how to quit
+            self.draw_text("Press close to exit", 24, TEXT_COLOR, WIDTH // 2, HEIGHT // 2 + 40)
 
             pg.display.flip()  # update the screen to show the text
 
@@ -128,16 +143,28 @@ class Game:
                 if event.type == pg.QUIT:  # checking if the player has closed the window
                     waiting = False        # stop waiting for the player to quit the screen
                     self.running = False   # stop running the game
+            
+                # check for r press
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_r:
+                        # reset the game
+                        self.reset_game()
+
+                        # leave the win screen
+                        waiting = False
 
     def show_lose_screen(self):
         waiting = True
         while waiting:  # keep the loss screen active while the game is running
-            self.screen.fill(BG_COLOR)   # fill the screen with the background color
-            # draw the main victory message in the center of the screen
-            self.draw_text("YOU LOSE", 48, ENEMY_COLOR, WIDTH // 2, HEIGHT // 2 - 40)
+            self.screen.fill(RED)   # fill the screen with the background color
+            # show lose message
+            self.draw_text("YOU LOSE", 48, WHITE, WIDTH // 2, HEIGHT // 2 - 60)
 
-            # draw the instruction text below the main message
-            self.draw_text("Press close to exit", 24, TEXT_COLOR, WIDTH // 2, HEIGHT // 2 + 20)
+            # tell player how to replay
+            self.draw_text("Press R to Replay", 28, WHITE, WIDTH // 2, HEIGHT // 2)
+
+            # tell player how to quit
+            self.draw_text("Press close to exit", 24, WHITE, WIDTH // 2, HEIGHT // 2 + 40)
 
             pg.display.flip()  # update the screen to show the text
 
@@ -145,6 +172,14 @@ class Game:
                 if event.type == pg.QUIT:  # checking if the player has closed the window
                     waiting = False        # stop waiting for the player to quit the screen
                     self.running = False   # stop running the game
+                
+                if event.type == pg.KEYDOWN: # check for r press
+                    if event.key == pg.K_r:
+                        # reset the game
+                        self.reset_game()
+
+                        # leave the lose screen
+                        waiting = False
 
 
     def draw_text(self, text, size, color, x, y, center=True):
