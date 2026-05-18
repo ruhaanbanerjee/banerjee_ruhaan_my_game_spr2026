@@ -73,6 +73,7 @@ class Game:
             
                 if event.key == pg.K_j and self.player: #punch when J is clicked
                     self.player.punch()
+                    
     def reset_game(self):
         # reset back to level 1
         self.current_level = 0

@@ -1,8 +1,6 @@
 
 is_log_enabled: bool = False
 
-# comment below added by AI sends to dead link; this code was actually inspired by my transposition of a GODOT state machine implementation, which can be found here: https://www.youtube.com/watch?v=QM9yytr2YL4&t=391s
-# state machine implementation inspired by https://www.youtube.com/watch?v=HhLwqQYyHf8&t=1s&ab_channel=CodeMonkey
 class State():
     def __init__(self):
         pass
