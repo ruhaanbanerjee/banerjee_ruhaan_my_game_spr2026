@@ -15,9 +15,9 @@ def collide_with_walls(sprite, group, dir):
     if dir == "x":                           # left/right collision
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)  # find walls being hit
         if hits:                             # if the sprite hit a wall
-            if sprite.vel.x > 0:             # and if moving right
+            if sprite.vel.x > 0:            
                 sprite.pos.x = hits[0].rect.left - sprite.hit_rect.width / 2    # place sprite to left of wall
-            elif sprite.vel.x < 0:           # if moving left
+            elif sprite.vel.x < 0:           
                 sprite.pos.x = hits[0].rect.right + sprite.hit_rect.width / 2   # place sprite to right of wall
             sprite.vel.x = 0                 # stop horizontal movement
             sprite.hit_rect.centerx = sprite.pos.x   # update hit position
@@ -25,11 +25,11 @@ def collide_with_walls(sprite, group, dir):
     if dir == "y":                           # up/down collision
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)  # find walls being touched
         if hits:                             # if the sprite hit a wall
-            if sprite.vel.y > 0:             # and if falling down
+            if sprite.vel.y > 0:             
                 sprite.pos.y = hits[0].rect.top - sprite.hit_rect.height / 2    # place sprite on top of wall
-            elif sprite.vel.y < 0:           # or if moving upward
+            elif sprite.vel.y < 0:           
                 sprite.pos.y = hits[0].rect.bottom + sprite.hit_rect.height / 2 # place sprite below wall
-            sprite.vel.y = 0                 # stop vertical movement
+            sprite.vel.y = 0                 
             sprite.hit_rect.centery = sprite.pos.y  # update hit position
 
 
@@ -87,7 +87,7 @@ class Player(Sprite):
     # Make the player jump or double jump
     def jump(self):
         if self.on_ground:                   # if player is standing on ground
-            self.vel.y = JUMP_VEL            # do first jump
+            self.vel.y = JUMP_VEL            
             self.jump_count = 1              # record one jump used
             self.on_ground = False           
         elif self.jump_count == 1:           # if one jump was already used

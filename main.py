@@ -127,7 +127,7 @@ class Game:
    # display a victory screen and keep it open until the player closes the window
     def show_win_screen(self):
         waiting = True
-        while waiting and self.running:  # keep the win screen active while the game is running
+        while waiting and self.running: 
             self.screen.fill(WIN_COLOR)   # fill the screen with the background color
             # show win message
             self.draw_text("YOU ESCAPED THE ABYSS", 48, GOAL_COLOR, WIDTH // 2, HEIGHT // 2 - 60)
@@ -140,9 +140,9 @@ class Game:
 
             pg.display.flip()  # update the screen to show the text
 
-            for event in pg.event.get():  # check for player input/events
+            for event in pg.event.get():  
                 if event.type == pg.QUIT:  # checking if the player has closed the window
-                    waiting = False        # stop waiting for the player to quit the screen
+                    waiting = False        
                     self.running = False   # stop running the game
             
                 # check for r press
@@ -170,8 +170,8 @@ class Game:
             pg.display.flip()  # update the screen to show the text
 
             for event in pg.event.get():  # check for player input/events
-                if event.type == pg.QUIT:  # checking if the player has closed the window
-                    waiting = False        # stop waiting for the player to quit the screen
+                if event.type == pg.QUIT:  
+                    waiting = False        
                     self.running = False   # stop running the game
                 
                 if event.type == pg.KEYDOWN: # check for r press
